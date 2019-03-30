@@ -39,7 +39,7 @@ import functools
 import arrow
 import inspect
 
-from tendril.utils.config import DB_URI
+from tendril.config.legacy import DB_URI
 
 from tendril.utils import log
 logger = log.get_logger(__name__, log.DEFAULT)
@@ -49,7 +49,7 @@ log.logging.getLogger('sqlalchemy.engine').setLevel(log.WARNING)
 def init_db_engine():
     """
     Initializes the database engine and binds it to the Database URI
-    defined by the :mod:`tendril.utils.config` module.
+    defined by the :mod:`tendril.config` module.
 
     This function is called within the module and an engine is readily
     available in the module variable :data:`tendril.utils.db.engine`.
