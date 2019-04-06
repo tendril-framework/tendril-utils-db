@@ -14,8 +14,8 @@ with open('README.rst') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    'tendril-utils-core>=0.1.9',
-    'tendril-config>=0.1.1',
+    'tendril-utils-core>=0.1.11',
+    'tendril-config>=0.1.6',
     'psycopg2',
     'SQLAlchemy',
     'sqlalchemy_utils',
@@ -29,7 +29,7 @@ test_requirements = [
 
 setup(
     name='tendril-utils-db',
-    version='0.1.2',
+    version='0.1.3',
     description="Database utilities for tendril",
     long_description=readme,
     author="Chintalagiri Shashank",
