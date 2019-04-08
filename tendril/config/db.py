@@ -4,7 +4,7 @@ from tendril.utils.config import ConfigOption
 from tendril.utils import log
 logger = log.get_logger(__name__, log.DEFAULT)
 
-depends = []
+depends = ['tendril.config.core']
 
 
 config_elements_db = [
