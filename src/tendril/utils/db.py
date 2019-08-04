@@ -95,6 +95,7 @@ Session.configure(bind=engine)
 
 
 def _format_frame(frame):
+    # TODO Move to devtooling
     name = []
     module = inspect.getmodule(frame)
     if module:
@@ -109,6 +110,7 @@ def _format_frame(frame):
 
 
 def _get_caller(skip=1, get_stack=False):
+    # TODO Move to devtooling
     # Based on http://stackoverflow.com/a/9812105
     stack = inspect.stack()
     done = False
