@@ -27,6 +27,7 @@ interaction with :mod:`sqlalchemy`
 
 """
 
+import importlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -39,6 +40,8 @@ import functools
 import arrow
 import inspect
 
+from tendril.utils.versions import get_namespace_package_names
+
 from tendril.config import DATABASE_HOST
 from tendril.config import DATABASE_PORT
 from tendril.config import DATABASE_USER
@@ -46,7 +49,7 @@ from tendril.config import DATABASE_PASS
 from tendril.config import DATABASE_DB
 
 from tendril.utils import log
-logger = log.get_logger(__name__, log.DEFAULT)
+logger = log.get_logger(__name__, log.INFO)
 log.logging.getLogger('sqlalchemy.engine').setLevel(log.WARNING)
 
 
@@ -61,8 +64,9 @@ def build_db_uri(dbhost, dbport, dbuser, dbpass, dbname):
     :param dbname: Name of the database
     :return: The DB URI
     """
-    return 'postgresql://' + \
-        dbuser + ":" + dbpass + "@" + dbhost + ':' + dbport + '/' + dbname
+    return 'postgresql://{0}:{1}@{2}:{3}/{4}'.format(
+        dbuser, dbpass, dbhost, dbport, dbname
+    )
 
 
 def init_db_engine():
@@ -247,59 +251,42 @@ class TimestampMixin(CreatedTimestampMixin, UpdateTimestampMixin):
     pass
 
 
-def get_metadata():
+def get_metadata(prefix='tendril'):
     """
     This function populates the database metadata with all the models used
-    by tendril.
+    by the application. The models are imported from <prefix>.*.db.models,
+    where * represents a single package hierarchy. This is how database
+    modules are distributed within tendril, and any application which wants
+    to use this package should follow the same architecture and the correct
+    prefix should be provided to this function.
     """
-    try:
-        from tendril.auth.db import model       # noqa
-    except ImportError:
-        pass
-
-    try:
-        from tendril.entityhub.db import model  # noqa
-    except ImportError:
-        pass
-
-    try:
-        from tendril.inventory.db import model  # noqa
-    except ImportError:
-        pass
-
-    try:
-        from tendril.dox.db import model        # noqa
-    except ImportError:
-        pass
-
-    try:
-        from tendril.testing.db import model    # noqa
-    except ImportError:
-        pass
-
-    try:
-        from tendril.sourcing.db import model   # noqa
-    except ImportError:
-        pass
-
-    try:
-        from tendril.production.db import model # noqa
-    except ImportError:
-        pass
+    for p in get_namespace_package_names(prefix):
+        try:
+            modname = '{0}.db.model'.format(p)
+            globals()[modname] = importlib.import_module(modname)
+            logger.info("Loaded DB Models from {0}".format(p))
+        except ImportError:
+            pass
 
     return DeclBase.metadata
 
 
 def commit_metadata():
     """
-    This function commits all metadata to the table. This function should be
-    run after importing **all** the Model classes, and it will create the
+    This function commits all metadata to the database. This function should
+    be run after importing **all** the Model classes, and it will create the
     tables in the database.
     """
     metadata.create_all(engine)
 
 
-#: The full Tendril database/sqlalchemy metadata.
+#: The full database/sqlalchemy metadata.
+#:
+#: This metadata will only be meaningful in an application, and not at the
+#: db utils package level. The application can import this metadata or
+#: simply add the metadata to its documentation identically as here to get
+#: a complete ER diagram.
+#:
 #: Rendered by :mod:`sqlalchemyviz` into the following ER diagram.
 #:
 #: .. sqlaviz::
