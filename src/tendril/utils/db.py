@@ -215,6 +215,9 @@ class TimestampMixin(CreatedTimestampMixin, UpdateTimestampMixin):
     pass
 
 
+_excluded_prefixes = ['tendril.schema']
+
+
 def get_metadata(prefix='tendril'):
     """
     This function populates the database metadata with all the models used
@@ -225,6 +228,8 @@ def get_metadata(prefix='tendril'):
     prefix should be provided to this function.
     """
     for p in get_namespace_package_names(prefix):
+        if p in _excluded_prefixes:
+            continue
         try:
             modname = '{0}.db.model'.format(p)
             globals()[modname] = importlib.import_module(modname)
