@@ -9,30 +9,30 @@ depends = ['tendril.config.core']
 
 config_elements_db = [
     ConfigOption(
-        'DATABASE_HOST',
-        "None",
+        'DATABASE_HOST', "None",
         "The database server host."
     ),
     ConfigOption(
-        'DATABASE_PORT',
-        "5432",
+        'DATABASE_PORT', "5432",
         "The database server port."
     ),
     ConfigOption(
-        'DATABASE_USER',
-        "None",
+        'DATABASE_USER', "None",
         "The username to login to the database server."
     ),
     ConfigOption(
-        'DATABASE_PASS',
-        "None",
+        'DATABASE_PASS', "None",
         "The password to login to the database server."
     ),
     ConfigOption(
-        'DATABASE_DB',
-        "None",
+        'DATABASE_DB', "None",
         "The name of the database."
     ),
+    ConfigOption(
+        'DATABASE_PACKAGE_PREFIXES', "None",
+        "List of package namespaces other than 'tendril' "
+        "to search for DB models."
+    )
 ]
 
 

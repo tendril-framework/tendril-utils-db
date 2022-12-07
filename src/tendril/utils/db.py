@@ -46,6 +46,7 @@ from tendril.config import DATABASE_PORT
 from tendril.config import DATABASE_USER
 from tendril.config import DATABASE_PASS
 from tendril.config import DATABASE_DB
+from tendril.config import DATABASE_PACKAGE_PREFIXES
 
 from tendril.utils import log
 logger = log.get_logger(__name__, log.INFO)
@@ -142,11 +143,10 @@ def with_db(func):
     :func:`with_db` decorator is intended to decorate functions which interact
     primarily with the db.
 
-    Such a function would accept only keyword arguments, one of which is
-    ``session``, which can be a database session (created by
-    :func:`get_session`) provided by the caller. If ``session`` is ``None``,
-    this decorator creates a new session and calls the decorated function
-    using it.
+    Such a function would accept 'session' only as a keyword argument
+    ``session``, which can be a database session (created by :func:`get_session`)
+    provided by the caller. If ``session`` is ``None``, this decorator creates
+    a new session and calls the decorated function using it.
 
     Any function which returns objects that still need to be bound to a db
     session should be called with a valid session, if you intend to do
@@ -158,12 +158,14 @@ def with_db(func):
 
     """
     @functools.wraps(func)
-    def inner(session=None, **kwargs):
+    def inner(*args, **kwargs):
+        session = kwargs.get('session', None)
         if session is None:
             with get_session() as s:
-                return func(session=s, **kwargs)
+                kwargs['session'] = s
+                return func(*args, **kwargs)
         else:
-            return func(session=session, **kwargs)
+            return func(*args, **kwargs)
     return inner
 
 
@@ -215,10 +217,11 @@ class TimestampMixin(CreatedTimestampMixin, UpdateTimestampMixin):
     pass
 
 
+_default_prefixes = ['tendril']
 _excluded_prefixes = ['tendril.schema']
 
 
-def get_metadata(prefix='tendril'):
+def get_metadata(prefixes=DATABASE_PACKAGE_PREFIXES):
     """
     This function populates the database metadata with all the models used
     by the application. The models are imported from <prefix>.*.db.models,
@@ -227,16 +230,18 @@ def get_metadata(prefix='tendril'):
     to use this package should follow the same architecture and the correct
     prefix should be provided to this function.
     """
-    for p in get_namespace_package_names(prefix):
-        if p in _excluded_prefixes:
-            continue
-        try:
-            modname = '{0}.db.model'.format(p)
-            globals()[modname] = importlib.import_module(modname)
-            logger.info("Loaded DB Models from {0}".format(p))
-        except ImportError:
-            pass
-
+    prefixes = _default_prefixes + (prefixes or [])
+    for prefix in prefixes:
+        logger.info("Loading DB Models from '{0}.*'".format(prefix))
+        for p in get_namespace_package_names(prefix):
+            if p in _excluded_prefixes:
+                continue
+            try:
+                modname = '{0}.db.model'.format(p)
+                globals()[modname] = importlib.import_module(modname)
+                logger.info("Loaded DB Models from {0}".format(p))
+            except ImportError:
+                pass
     return DeclBase.metadata
 
 
