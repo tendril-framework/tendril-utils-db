@@ -41,37 +41,17 @@ import arrow
 
 from tendril.utils.versions import get_namespace_package_names
 
-from tendril.config import DATABASE_HOST
-from tendril.config import DATABASE_PORT
-from tendril.config import DATABASE_USER
-from tendril.config import DATABASE_PASS
-from tendril.config import DATABASE_DB
+from tendril.config import DATABASE_URI
 from tendril.config import DATABASE_PACKAGE_PREFIXES
 
 from tendril.utils import log
-logger = log.get_logger(__name__, log.INFO)
+logger = log.get_logger(__name__, log.DEFAULT)
 log.logging.getLogger('sqlalchemy.engine').setLevel(log.WARNING)
 
 try:
     from tendril.devtooling import stack
 except ImportError:
     stack = None
-
-
-def build_db_uri(dbhost, dbport, dbuser, dbpass, dbname):
-    """
-    Builds a ``postgresql`` DB URI from the parameters provided.
-
-    :param dbhost: Hostname / IP of the database server
-    :param dbport: Port of the database server
-    :param dbuser: Username of the database user
-    :param dbpass: Password of the database user
-    :param dbname: Name of the database
-    :return: The DB URI
-    """
-    return 'postgresql://{0}:{1}@{2}:{3}/{4}'.format(
-        dbuser, dbpass, dbhost, dbport, dbname
-    )
 
 
 def init_db_engine():
@@ -84,11 +64,7 @@ def init_db_engine():
     Application code should not have to create a new engine for normal
     use cases.
     """
-    return create_engine(
-        build_db_uri(DATABASE_HOST, DATABASE_PORT,
-                     DATABASE_USER, DATABASE_PASS,
-                     DATABASE_DB)
-    )
+    return create_engine(DATABASE_URI)
 
 
 #: The :class:`sqlalchemy.Engine` object
