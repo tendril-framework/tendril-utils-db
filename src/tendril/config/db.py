@@ -71,7 +71,8 @@ def _db_config_template(db_code):
             "the code, and should not be set directly in any config file."
         ),
         ConfigOption(
-            'DATABASE{}_PACKAGE_PREFIXES', "None",
+            'DATABASE{}_PACKAGE_PREFIXES'.format(db_code),
+            "None",
             "List of package namespaces other than 'tendril' "
             "to search for DB models."
         )
