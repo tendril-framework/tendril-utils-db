@@ -158,6 +158,8 @@ class BaseMixin(object):
     """
     @declared_attr
     def __tablename__(self):
+        if self.__name__.endswith('Model'):
+            return self.__name__[:-5]
         return self.__name__
 
     # __table_args__ = {'mysql_engine': 'InnoDB'}
