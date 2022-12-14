@@ -197,6 +197,7 @@ class TimestampMixin(CreatedTimestampMixin, UpdateTimestampMixin):
 
 _default_prefixes = ['tendril']
 _excluded_prefixes = ['tendril.schema']
+_user_models_prefix = ['tendril.db.models']
 
 
 def get_metadata(prefixes=DATABASE_PACKAGE_PREFIXES):
@@ -217,6 +218,14 @@ def get_metadata(prefixes=DATABASE_PACKAGE_PREFIXES):
             try:
                 modname = '{0}.db.model'.format(p)
                 globals()[modname] = importlib.import_module(modname)
+                logger.info("Loaded DB Models from {0}".format(p))
+            except ImportError:
+                pass
+    for prefix in _user_models_prefix:
+        logger.info(f"Loading Instance DB Models from '{prefix}.*")
+        for p in get_namespace_package_names(prefix):
+            try:
+                globals()[p] = importlib.import_module(p)
                 logger.info("Loaded DB Models from {0}".format(p))
             except ImportError:
                 pass

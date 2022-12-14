@@ -34,6 +34,7 @@ core_dependencies = [
     'psycopg2',
     'SQLAlchemy',
     'sqlalchemy_utils',
+    'sqlalchemy_json',
     'alembic',
     'arrow'
 ]
