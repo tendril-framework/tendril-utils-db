@@ -232,6 +232,14 @@ def get_metadata(prefixes=DATABASE_PACKAGE_PREFIXES):
     return DeclBase.metadata
 
 
+for_create = []
+
+
+def register_for_create(func):
+    global for_create
+    for_create.append(func)
+
+
 def commit_metadata():
     """
     This function commits all metadata to the database. This function should
@@ -239,6 +247,11 @@ def commit_metadata():
     tables in the database.
     """
     metadata.create_all(engine)
+
+    with get_session() as session:
+        global for_create
+        for func in for_create:
+            func(session=session)
 
 
 #: The full database/sqlalchemy metadata.
