@@ -215,6 +215,7 @@ def get_metadata(prefixes=DATABASE_PACKAGE_PREFIXES):
         for p in get_namespace_package_names(prefix):
             if p in _excluded_prefixes:
                 continue
+            logger.debug(f"Trying to load models from '{p}.db.model'")
             try:
                 modname = '{0}.db.model'.format(p)
                 globals()[modname] = importlib.import_module(modname)
@@ -224,6 +225,7 @@ def get_metadata(prefixes=DATABASE_PACKAGE_PREFIXES):
     for prefix in _user_models_prefix:
         logger.info(f"Loading Instance DB Models from '{prefix}.*")
         for p in get_namespace_package_names(prefix):
+            logger.debug(f"Trying to load models from '{p}'")
             try:
                 globals()[p] = importlib.import_module(p)
                 logger.info("Loaded DB Models from {0}".format(p))
