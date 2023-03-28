@@ -57,7 +57,8 @@ def _db_config_template(db_code):
         ConfigOption(
             'DATABASE{}_PASS'.format(db_code),
             "None",
-            "The password to login to the database server."
+            "The password to login to the database server.",
+            masked=True
         ),
         ConfigOption(
             'DATABASE{}_DB'.format(db_code),
@@ -68,7 +69,7 @@ def _db_config_template(db_code):
             'DATABASE{}_URI'.format(db_code),
             db_code,
             "Constructed Database URI string. This option is created by "
-            "the code, and should not be set directly in any config file."
+            "the code, and should not be set directly in any config file.",
         ),
         ConfigOption(
             'DATABASE{}_PACKAGE_PREFIXES'.format(db_code),
