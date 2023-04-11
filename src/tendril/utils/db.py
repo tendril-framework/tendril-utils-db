@@ -28,6 +28,7 @@ interaction with :mod:`sqlalchemy`
 """
 
 import importlib
+from sqlalchemy import MetaData
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -45,7 +46,7 @@ from tendril.config import DATABASE_URI
 from tendril.config import DATABASE_PACKAGE_PREFIXES
 
 from tendril.utils import log
-logger = log.get_logger(__name__, log.DEFAULT)
+logger = log.get_logger(__name__, log.DEBUG)
 log.logging.getLogger('sqlalchemy.engine').setLevel(log.WARNING)
 
 try:
@@ -145,8 +146,20 @@ def with_db(func):
     return inner
 
 
+#: Database metadata object initialization
+meta = MetaData(
+    naming_convention={
+        "ix": "%(column_0_label)s_idx",
+        "uq": "%(table_name)s_%(column_0_name)s_key",
+        "ck": "%(table_name)s_%(constraint_name)s_check",
+        "fk": "%(table_name)s_%(column_0_name)s_%(referred_table_name)s_fkey",
+        "pk": "%(table_name)s_pkey"
+    }
+)
+
+
 #: The :mod:`sqlalchemy` declarative base for all Models in Tendril
-DeclBase = declarative_base()
+DeclBase = declarative_base(metadata=meta)
 
 
 class BaseMixin(object):
@@ -220,8 +233,8 @@ def get_metadata(prefixes=DATABASE_PACKAGE_PREFIXES):
                 modname = '{0}.db.model'.format(p)
                 globals()[modname] = importlib.import_module(modname)
                 logger.info("Loaded DB Models from {0}".format(p))
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(e)
     for prefix in _user_models_prefix:
         logger.info(f"Loading Instance DB Models from '{prefix}.*")
         for p in get_namespace_package_names(prefix):
@@ -229,8 +242,8 @@ def get_metadata(prefixes=DATABASE_PACKAGE_PREFIXES):
             try:
                 globals()[p] = importlib.import_module(p)
                 logger.info("Loaded DB Models from {0}".format(p))
-            except ImportError:
-                pass
+            except ImportError as e:
+                logger.debug(e)
     return DeclBase.metadata
 
 
