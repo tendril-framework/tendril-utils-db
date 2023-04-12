@@ -209,7 +209,13 @@ class TimestampMixin(CreatedTimestampMixin, UpdateTimestampMixin):
 
 
 _default_prefixes = ['tendril']
-_excluded_prefixes = ['tendril.schema']
+_excluded_prefixes = ['tendril.schema',  # Cannot always be safely imported. Has no models.
+                      'tendril.interests',  # Cannot be safely imported before authn. Models must reside in tendril.db.models.  # noqa
+                      'tendril.config',  # Can never contain models. Should be safe to import though.
+                      'tendril.db',      # Can never contain models. Should be safe to import though.
+                      'tendril.common',  # Can never contain models. Should be safe to import though.
+                      'tendril.utils',   # Can never contain models. Should be safe to import though.
+                      ]
 _user_models_prefix = ['tendril.db.models']
 
 
