@@ -43,6 +43,8 @@ import arrow
 from tendril.utils.versions import get_namespace_package_names
 
 from tendril.config import DATABASE_URI
+from tendril.config import DATABASE_HOST
+from tendril.config import DATABASE_DB
 from tendril.config import DATABASE_PACKAGE_PREFIXES
 
 from tendril.utils import log
@@ -287,3 +289,5 @@ def commit_metadata():
 #: .. sqlaviz::
 #:     :metadataobject: tendril.utils.db.metadata
 metadata = get_metadata()
+
+logger.info(f"Using Database {DATABASE_DB} on Host {DATABASE_HOST}")
