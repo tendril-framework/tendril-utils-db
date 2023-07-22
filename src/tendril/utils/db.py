@@ -27,7 +27,9 @@ interaction with :mod:`sqlalchemy`
 
 """
 
+import json
 import importlib
+from decimal import Decimal
 from sqlalchemy import MetaData
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -67,7 +69,21 @@ def init_db_engine():
     Application code should not have to create a new engine for normal
     use cases.
     """
-    return create_engine(DATABASE_URI)
+
+    def _default(val):
+        if isinstance(val, Decimal):
+            return str(val)
+        raise TypeError()
+
+    def dumps(d):
+        return json.dumps(d, default=_default)
+
+    def loads(*args, **kwgs):
+        return json.loads(*args, parse_float=Decimal, **kwgs)
+
+    return create_engine(DATABASE_URI,
+                         json_serializer=dumps,
+                         json_deserializer=loads)
 
 
 #: The :class:`sqlalchemy.Engine` object
