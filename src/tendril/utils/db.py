@@ -86,7 +86,8 @@ def init_db_engine():
 
     return create_engine(DATABASE_URI,
                          json_serializer=dumps,
-                         json_deserializer=loads)
+                         json_deserializer=loads,
+                         pool_size=30, max_overflow=100)
 
 
 #: The :class:`sqlalchemy.Engine` object
